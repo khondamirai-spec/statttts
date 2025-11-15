@@ -56,7 +56,7 @@ export default function RegionCard({
       <div className={`region-card__icon bg-gradient-to-br text-white ${accentMap[accent]}`}>
         <LocationIcon />
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 region-card__body">
         <p className="text-sm font-semibold text-slate-500">{title}</p>
         <span className="region-card__value">
           {valueLabel ?? formatNumber(value)}

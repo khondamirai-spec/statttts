@@ -255,6 +255,19 @@ export default function WeeklyMonthlyYearlyCard() {
     };
   }, [data, chartWidth, chartHeight]);
 
+  const todaySummary = useMemo(() => {
+    if (!data.length) return null;
+    const todayISO = new Date().toLocaleDateString("en-CA");
+    const exactPoint = data.find((point) => point.date === todayISO);
+    const fallbackPoint = data.at(-1) ?? null;
+    const resolvedPoint = exactPoint ?? fallbackPoint;
+    if (!resolvedPoint) return null;
+    return {
+      ...resolvedPoint,
+      isExact: Boolean(exactPoint),
+    };
+  }, [data]);
+
   const activePoint =
     chartData.points[hoverIndex ?? chartData.points.length - 1];
   const peakPoint = useMemo(() => findPeakPoint(data), [data]);
@@ -312,10 +325,6 @@ export default function WeeklyMonthlyYearlyCard() {
             value={total}
             className="summary-tile__value summary-tile__value--xl"
           />
-        </div>
-        <div className="summary-tile">
-          <p className="summary-tile__label">Daily Average</p>
-          <p className="summary-tile__value">{formatNumber(dailyAvg)}</p>
         </div>
         <div className="summary-tile">
           <p className="summary-tile__label">Peak Day</p>
