@@ -48,7 +48,12 @@ function getCourseCover(title: string) {
   return `/images/${safe}.png`;
 }
 
-function initialRange() {
+type DateRange = {
+  start: Date;
+  end: Date;
+};
+
+function initialRange(): DateRange {
   const end = new Date();
   const start = new Date();
   start.setDate(end.getDate() - 29);
@@ -67,10 +72,7 @@ function enrichCourse(course: CourseRow): EnrichedCourse {
 }
 
 export default function CourseCardsCarousel() {
-  const [{ start, end }, setRange] = useState<{
-    start: Date | null;
-    end: Date | null;
-  }>(() => ({ start: null, end: null }));
+  const [{ start, end }, setRange] = useState<DateRange>(() => initialRange());
   const [courses, setCourses] = useState<EnrichedCourse[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(1);
