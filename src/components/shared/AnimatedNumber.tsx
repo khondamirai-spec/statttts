@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { formatNumber } from "@/lib/utils";
 
 type AnimatedNumberProps = {
   value: number;
@@ -69,11 +70,8 @@ export default function AnimatedNumber({
   }, [value, duration, prefersReducedMotion]);
 
   const formatted = useMemo(() => {
-    const formatter = new Intl.NumberFormat("uz-UZ", {
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals,
-    });
-    return `${prefix}${formatter.format(displayValue)}${suffix}`;
+    const number = formatNumber(displayValue, { decimals });
+    return `${prefix}${number}${suffix}`;
   }, [displayValue, decimals, prefix, suffix]);
 
   return <span className={className}>{formatted}</span>;

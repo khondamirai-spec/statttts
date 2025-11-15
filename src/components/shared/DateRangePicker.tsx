@@ -39,6 +39,9 @@ export default function DateRangePicker({
 }: DateRangePickerProps) {
   const startInputRef = useRef<DateInputElement>(null);
   const endInputRef = useRef<DateInputElement>(null);
+  const wrapperClassName = ["date-range-picker", className]
+    .filter(Boolean)
+    .join(" ");
 
   const openNativePicker = (input: DateInputElement | null) => {
     if (!input) return;
@@ -61,48 +64,52 @@ export default function DateRangePicker({
   };
 
   return (
-    <div className={className}>
-      <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+    <div className={wrapperClassName}>
+      <label className="date-range-picker__label text-xs font-semibold uppercase tracking-wide text-slate-500">
         Sana oralig’i
       </label>
-      <div className="mt-1 flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => openNativePicker(startInputRef.current)}
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
-          aria-label="Boshlanish sanasini tanlash"
-        >
-          <CalendarIcon className="h-5 w-5" />
-        </button>
-        <input
-          type="date"
-          value={formatInput(startDate)}
-          max={formatInput(endDate ?? max)}
-          min={formatInput(min)}
-          onChange={(event) => handleStartChange(event.target.value)}
-          className="date-input"
-          ref={startInputRef}
-          aria-label="Start date"
-        />
-        <span className="text-sm font-medium text-slate-500">—</span>
-        <input
-          type="date"
-          value={formatInput(endDate)}
-          min={formatInput(startDate ?? min)}
-          max={formatInput(max)}
-          onChange={(event) => handleEndChange(event.target.value)}
-          className="date-input"
-          ref={endInputRef}
-          aria-label="End date"
-        />
-        <button
-          type="button"
-          onClick={() => openNativePicker(endInputRef.current)}
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
-          aria-label="Tugash sanasini tanlash"
-        >
-          <CalendarIcon className="h-5 w-5" />
-        </button>
+      <div className="date-range-picker__controls">
+        <div className="date-range-picker__field">
+          <button
+            type="button"
+            onClick={() => openNativePicker(startInputRef.current)}
+            className="date-range-picker__trigger flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
+            aria-label="Boshlanish sanasini tanlash"
+          >
+            <CalendarIcon className="h-5 w-5" />
+          </button>
+          <input
+            type="date"
+            value={formatInput(startDate)}
+            max={formatInput(endDate ?? max)}
+            min={formatInput(min)}
+            onChange={(event) => handleStartChange(event.target.value)}
+            className="date-input"
+            ref={startInputRef}
+            aria-label="Start date"
+          />
+        </div>
+        <span className="date-range-picker__separator">—</span>
+        <div className="date-range-picker__field">
+          <button
+            type="button"
+            onClick={() => openNativePicker(endInputRef.current)}
+            className="date-range-picker__trigger flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
+            aria-label="Tugash sanasini tanlash"
+          >
+            <CalendarIcon className="h-5 w-5" />
+          </button>
+          <input
+            type="date"
+            value={formatInput(endDate)}
+            min={formatInput(startDate ?? min)}
+            max={formatInput(max)}
+            onChange={(event) => handleEndChange(event.target.value)}
+            className="date-input"
+            ref={endInputRef}
+            aria-label="End date"
+          />
+        </div>
       </div>
     </div>
   );

@@ -20,8 +20,10 @@ export default async function DashboardPage() {
           <LessonsCard />
           <CertificatesCard />
         </div>
-        <TallSalesCard />
-        <WeeklyMonthlyYearlyCard />
+        <div className="analytics-grid">
+          <TallSalesCard />
+          <WeeklyMonthlyYearlyCard />
+        </div>
         <section id="courses" className="section-block">
           <h2>Kurslar</h2>
           <CourseCardsCarousel />

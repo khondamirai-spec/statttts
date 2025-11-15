@@ -4,15 +4,53 @@ export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
 }
 
-export function formatNumber(value: number | undefined | null) {
+type FormatNumberOptions = {
+  decimals?: number;
+  decimalSeparator?: string;
+  groupSeparator?: string;
+};
+
+export function formatNumber(
+  value: number | undefined | null,
+  options: FormatNumberOptions = {},
+) {
   if (value === undefined || value === null || Number.isNaN(value)) {
     return "0";
   }
-  return value.toLocaleString("uz-UZ");
+
+  const {
+    decimals,
+    decimalSeparator = ",",
+    groupSeparator = " ",
+  } = options;
+
+  const resolvedDecimals =
+    typeof decimals === "number"
+      ? Math.max(0, decimals)
+      : Number.isInteger(value)
+        ? 0
+        : 2;
+
+  const sign = value < 0 ? "-" : "";
+  const absoluteValue = Math.abs(value);
+  const fixed = absoluteValue.toFixed(resolvedDecimals);
+  const [integerPart, decimalPart] = fixed.split(".");
+  const groupedInteger = integerPart.replace(
+    /\B(?=(\d{3})+(?!\d))/g,
+    groupSeparator,
+  );
+  const decimalSection =
+    resolvedDecimals > 0 && decimalPart ? `${decimalSeparator}${decimalPart}` : "";
+
+  return `${sign}${groupedInteger}${decimalSection}`;
 }
 
 export function formatDateISO(date: Date) {
   return date.toISOString().split("T")[0];
+}
+
+export function toUTCDate(dateString: string) {
+  return new Date(`${dateString}T00:00:00Z`);
 }
 
 export function toNumber(value: unknown, fallback = 0) {
@@ -20,5 +58,3 @@ export function toNumber(value: unknown, fallback = 0) {
   if (Number.isNaN(num)) return fallback;
   return num;
 }
-
-

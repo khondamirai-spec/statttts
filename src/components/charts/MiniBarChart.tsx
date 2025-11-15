@@ -1,14 +1,19 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn, formatNumber } from "@/lib/utils";
 import type { DailyViewPoint } from "@/hooks/useDailyViews";
 
 type MiniBarChartProps = {
   data: DailyViewPoint[];
   loading?: boolean;
+  compact?: boolean;
 };
 
-export default function MiniBarChart({ data, loading }: MiniBarChartProps) {
+export default function MiniBarChart({
+  data,
+  loading,
+  compact = false,
+}: MiniBarChartProps) {
   const displayData = data.slice(-7);
   const maxValue = displayData.reduce(
     (max, point) => Math.max(max, point.value),
@@ -17,8 +22,12 @@ export default function MiniBarChart({ data, loading }: MiniBarChartProps) {
 
   return (
     <div
-      className="mini-bar-chart"
-      style={{ minHeight: "min(15vh, 180px)" }}
+      className={cn("mini-bar-chart", compact && "mini-bar-chart--compact")}
+      style={{ 
+        minHeight: compact 
+          ? "min(10vh, 120px)" 
+          : "min(12vh, 140px)",
+      }}
       aria-live="polite"
       aria-busy={loading}
     >
@@ -27,9 +36,14 @@ export default function MiniBarChart({ data, loading }: MiniBarChartProps) {
         return (
           <div key={`${point.day}-${point.date}`} className="mini-bar">
             <span className="mini-bar__value">
-              {point.value.toLocaleString("en-US")}
+              {formatNumber(point.value)}
             </span>
-            <div className="mini-bar__track">
+            <div
+              className={cn(
+                "mini-bar__track",
+                compact && "mini-bar__track--compact",
+              )}
+            >
               <div
                 className={cn(
                   "mini-bar__fill",

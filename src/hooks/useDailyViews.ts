@@ -2,16 +2,30 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { getDailyViews, type SeriesRow } from "@/lib/api";
-import { formatDateISO } from "@/lib/utils";
+import { formatDateISO, toUTCDate } from "@/lib/utils";
 
 export type DailyViewPoint = {
   day: string;
   date: number;
   value: number;
+  shortLabel: string;
+  longLabel: string;
 };
 
 const weekdayFormatter = new Intl.DateTimeFormat("en-US", {
   weekday: "short",
+  timeZone: "UTC",
+});
+const shortRangeFormatter = new Intl.DateTimeFormat("uz-UZ", {
+  month: "short",
+  day: "2-digit",
+  timeZone: "UTC",
+});
+const longRangeFormatter = new Intl.DateTimeFormat("uz-UZ", {
+  weekday: "short",
+  month: "short",
+  day: "2-digit",
+  timeZone: "UTC",
 });
 
 const fallbackSeries: SeriesRow[] = [
@@ -50,11 +64,13 @@ function dedupeAndSort(rows: SeriesRow[]) {
 
 function formatChartRows(rows: SeriesRow[]): DailyViewPoint[] {
   return rows.slice(-7).map((row) => {
-    const date = new Date(row.date);
+    const date = toUTCDate(row.date);
     return {
       day: weekdayFormatter.format(date).toUpperCase(),
-      date: date.getDate(),
+      date: date.getUTCDate(),
       value: row.count,
+      shortLabel: shortRangeFormatter.format(date),
+      longLabel: longRangeFormatter.format(date),
     };
   });
 }
@@ -79,12 +95,13 @@ export function useDailyViews() {
 
   useEffect(() => {
     if (!window) return;
+    const { start, end } = window;
     let active = true;
     const frame = requestAnimationFrame(() => {
       if (active) setLoading(true);
     });
     async function fetchData() {
-      const rows = await getDailyViews(window.start, window.end);
+      const rows = await getDailyViews(start, end);
       if (!active) return;
       if (!rows || !rows.length) {
         setSeries(fallbackSeries);

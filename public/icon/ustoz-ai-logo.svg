@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 80" role="img" aria-labelledby="title">
+  <title>Ustoz AI Logo</title>
+  <defs>
+    <linearGradient id="u-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0f2a6b" />
+      <stop offset="100%" stop-color="#03143a" />
+    </linearGradient>
+  </defs>
+  <g fill="url(#u-gradient)">
+    <path d="M24 6c-7.5 0-14 4.9-14 15v35c0 19 12.5 23 23 23h4c10.5 0 23-4 23-23V21c0-10.1-6.5-15-14-15h-1c-3.8 0-7 3.2-7 7v45c0 6.4-3.5 9-7 9s-7-2.6-7-9V13c0-3.8-3.2-7-7-7Z"/>
+    <path d="M53 6c4.8 0 8.5 3.7 8.5 8.5 0 7.3-3 11.5-10 16.5-3.1 2.3-3.8 3.3-3.8 5.8v23c0 2.7-1.7 5-4.5 5h-5.2c-2.8 0-4.5-2.3-4.5-5V37c0-4.6 2.2-7.8 6.1-10.8l7.1-5.6C48.7 18 50 15.4 50 12.5 50 8.7 51.9 6 56.5 6Z" opacity="0.65"/>
+  </g>
+  <text x="90" y="52" font-size="34" font-family="Inter, 'Segoe UI', system-ui, sans-serif" font-weight="700" fill="#0f1f52" letter-spacing="2">
+    USTOZ AI
+  </text>
+</svg>
+

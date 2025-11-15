@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -34,6 +33,11 @@ export default function NavigationBar() {
 
     const observer = new IntersectionObserver(
       (entries) => {
+        if (window.scrollY < 200) {
+          setActiveHash("");
+          window.history.replaceState(null, "", "/");
+          return;
+        }
         const visible = entries
           .filter((entry) => entry.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
@@ -85,25 +89,10 @@ export default function NavigationBar() {
 
   return (
     <header className="app-nav">
-      <div className="app-nav__brand">
-        <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/icon/icon.png"
-            alt="Af Ustoz AI logo"
-            width={36}
-            height={36}
-            className="rounded-xl"
-            priority
-          />
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-widest text-slate-500">
-              AF Ustoz
-            </p>
-            <p className="text-lg font-black text-slate-900">AI Dashboard</p>
-          </div>
-        </Link>
-      </div>
-      <nav className="app-nav__links">
+      <Link href="/" className="app-nav__logo" aria-label="AF Ustoz AI">
+        <img src="/icon/icon.png" alt="Af Ustoz AI logo" className="app-nav__logo-img" />
+      </Link>
+      <nav className="app-nav__links app-nav__links--compact" aria-label="Primary navigation">
         {navLinks.map((link) => (
           <button
             key={link.href}
@@ -121,8 +110,6 @@ export default function NavigationBar() {
           </button>
         ))}
       </nav>
-      <div className="app-nav__actions">
-      </div>
     </header>
   );
 }

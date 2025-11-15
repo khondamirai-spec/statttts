@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Award, Eye, UsersRound, X } from "lucide-react";
+import { ArrowRight, Award, Eye, UsersRound, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { getDistricts, getVillageSchool } from "@/lib/api";
 import { formatNumber, toNumber } from "@/lib/utils";
@@ -84,6 +84,12 @@ const metricBadgeStyles = {
   },
 };
 
+const nestedStatGradients: Record<"users" | "views" | "certificates", string> = {
+  users: "from-[#b770ff] via-[#d48cff] to-[#ff9bd8]",
+  views: "from-[#6cb8ff] via-[#4cc7ff] to-[#7de2ff]",
+  certificates: "from-[#52dcb1] via-[#70e09a] to-[#a9f7c6]",
+};
+
 const headerGradientMap: Record<RegionAccent, string> = {
   purple: "from-[#5c31ff] via-[#a06bff] to-[#ff7dea]",
   orange: "from-[#ff8c42] via-[#ffb347] to-[#ffd166]",
@@ -116,6 +122,19 @@ export default function RegionDetailsSidebar({
   const [districtVillageData, setDistrictVillageData] = useState<VillageSchoolMetrics | null>(null);
   const [districtVillageLoading, setDistrictVillageLoading] = useState(false);
   const [districtVillageError, setDistrictVillageError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const { body } = document;
+    if (isOpen) {
+      body.classList.add("region-panel-open");
+    } else {
+      body.classList.remove("region-panel-open");
+    }
+    return () => {
+      body.classList.remove("region-panel-open");
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -290,8 +309,8 @@ export default function RegionDetailsSidebar({
     if (loadingTimer.current) clearTimeout(loadingTimer.current);
     loadingTimer.current = setTimeout(() => setContentLoading(false), 420);
   };
-  const contentGradient =
-    (region && contentGradientMap[region.accent]) ?? contentGradientMap.purple;
+  const accent: RegionAccent = region?.accent ?? "purple";
+  const contentGradient = contentGradientMap[accent];
 
   return (
     <AnimatePresence>
@@ -494,19 +513,42 @@ function RegionHeader({
           )}
         </div>
       ) : (
-        <>
-          <p className="text-lg font-semibold tracking-tight">{title}</p>
-          <motion.button
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onClose}
-            aria-label="Close panel"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-900 shadow-[0_10px_25px_rgba(255,255,255,0.5)] transition-all duration-200"
-          >
-            <X className="h-5 w-5" />
-            <span className="absolute inset-0 rounded-full bg-gradient-to-br from-white to-transparent opacity-70" />
-          </motion.button>
-        </>
+        <div className="flex w-full flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.4em] text-white/70">Tuman</p>
+              <p className="text-lg font-semibold tracking-tight">{title}</p>
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onClose}
+              aria-label="Close panel"
+              className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-900 shadow-[0_10px_25px_rgba(255,255,255,0.5)] transition-all duration-200"
+            >
+              <X className="h-5 w-5" />
+              <span className="absolute inset-0 rounded-full bg-gradient-to-br from-white to-transparent opacity-70" />
+            </motion.button>
+          </div>
+          {!!stats.length && (
+            <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap">
+              {stats.map((stat) => {
+                const Icon = statIconMap[stat.id] ?? UsersRound;
+                const gradient =
+                  nestedStatGradients[stat.id as keyof typeof nestedStatGradients] ?? nestedStatGradients.users;
+                return (
+                  <span
+                    key={stat.id}
+                    className={`inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-gradient-to-r ${gradient} px-2.5 py-1 text-xs font-semibold text-white shadow-[0_10px_25px_rgba(30,41,99,0.35)]`}
+                  >
+                    <Icon className="h-3.5 w-3.5 text-white" aria-hidden="true" />
+                    <span className="text-sm font-bold text-white">{formatNumber(stat.value)}</span>
+                  </span>
+                );
+              })}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
@@ -670,8 +712,18 @@ function DistrictCard({ district, onSelect, delay = 0, isActive }: DistrictCardP
       <span className="pointer-events-none absolute inset-[1px] rounded-[30px] bg-white/85" />
       <div className="relative flex items-center justify-between gap-3 rounded-[28px] border border-white/70 px-4 py-3 shadow-[0_12px_30px_rgba(34,48,94,0.12)] transition-all duration-300 group-hover:shadow-[0_18px_40px_rgba(160,107,255,0.12),0_30px_70px_rgba(76,199,255,0.22)]">
         <div className="min-w-0">
-          <p className="text-[9px] font-semibold uppercase tracking-[0.45em] text-slate-400">Tuman</p>
-          <p className="mt-1 truncate text-sm font-semibold text-slate-900">{district.name}</p>
+          <p className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+            <span>Ko'proq ma'lumot</span>
+            <motion.span
+              aria-hidden="true"
+              animate={{ x: [0, 3, 0] }}
+              transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+              className="inline-flex items-center"
+            >
+              <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
+            </motion.span>
+          </p>
+          <p className="mt-1 break-words text-sm font-semibold text-slate-900">{district.name}</p>
         </div>
         <div className="flex items-center gap-1.5">
           {miniMetrics.map((metric) => (
@@ -708,12 +760,12 @@ function MiniMetricBubble({ metric }: MiniMetricBubbleProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 6 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="absolute left-1/2 top-10 z-10 w-32 -translate-x-1/2 rounded-2xl bg-white/95 px-3 py-2 text-center text-[11px] font-semibold text-slate-700 shadow-[0_12px_30px_rgba(34,48,94,0.2)]"
+            className="absolute left-1/2 top-10 z-10 w-32 -translate-x-1/2 rounded-2xl bg-white px-3 py-2 text-center text-[11px] font-semibold text-black shadow-[0_12px_30px_rgba(34,48,94,0.25)]"
           >
-            <span className="block text-[9px] uppercase tracking-[0.35em] text-slate-400">
+            <span className="block text-[8px] font-semibold uppercase tracking-[0.2em] text-black">
               {metric.label}
             </span>
-            <span className="text-base font-bold text-slate-900">{formatNumber(metric.value)}</span>
+            <span className="text-lg font-black text-black">{formatNumber(metric.value)}</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -816,31 +868,51 @@ type EntityCardProps = {
 };
 
 function EntityCard({ entity, accent, delay = 0 }: EntityCardProps) {
+  const accentGradient =
+    accent === "pink"
+      ? "from-[#ff7dea]/30 via-[#a06bff]/15 to-[#4cc7ff]/10"
+      : "from-[#4cc7ff]/35 via-[#4c8dff]/15 to-[#70e09a]/10";
+
+  const entityMetrics: MiniMetric[] = [
+    {
+      label: miniMetricConfig.users.label,
+      value: entity.users,
+      icon: miniMetricConfig.users.icon,
+      tone: miniMetricConfig.users.tone,
+    },
+    {
+      label: miniMetricConfig.views.label,
+      value: entity.views,
+      icon: miniMetricConfig.views.icon,
+      tone: miniMetricConfig.views.tone,
+    },
+    {
+      label: miniMetricConfig.certificates.label,
+      value: entity.certificates,
+      icon: miniMetricConfig.certificates.icon,
+      tone: miniMetricConfig.certificates.tone,
+    },
+  ];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.35, ease: "easeOut" }}
-      className="group relative overflow-hidden rounded-[30px] border border-white/70 bg-white/85 px-5 py-4 text-slate-900 shadow-[0_10px_24px_rgba(80,41,198,0.08),0_25px_55px_rgba(76,199,255,0.12),0_40px_85px_rgba(112,224,154,0.18)] backdrop-blur-2xl transition-all duration-300 hover:shadow-[0_18px_40px_rgba(160,107,255,0.12),0_32px_70px_rgba(76,199,255,0.2),0_50px_100px_rgba(112,224,154,0.28)]"
+      className="group relative w-full rounded-3xl text-left"
     >
       <span
-        className={`pointer-events-none absolute inset-0 rounded-[30px] bg-gradient-to-r ${
-          accent === "pink"
-            ? "from-[#ff7dea]/15 via-[#a06bff]/8 to-transparent"
-            : "from-[#4cc7ff]/20 via-[#4c8dff]/10 to-transparent"
-        }`}
+        className={`pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-r ${accentGradient} opacity-60 transition-opacity duration-300 group-hover:opacity-90`}
       />
-      <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-1">
-          <p className="text-base font-semibold leading-tight">{entity.name}</p>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.45em] text-slate-500">
-            {accent === "pink" ? "MFY" : "Maktab"}
-          </p>
+      <span className="pointer-events-none absolute inset-[1px] rounded-[30px] bg-white/85" />
+      <div className="relative flex items-center justify-between gap-3 rounded-[28px] border border-white/70 px-4 py-3 text-slate-900 shadow-[0_12px_30px_rgba(34,48,94,0.12)] transition-all duration-300 group-hover:shadow-[0_18px_40px_rgba(160,107,255,0.12),0_30px_70px_rgba(76,199,255,0.22)]">
+        <div className="min-w-0">
+          <p className="break-words text-sm font-semibold text-slate-900">{entity.name}</p>
         </div>
-        <div className="flex flex-wrap gap-2 text-[11px]">
-          <MetricBadge label="Users" value={entity.users} color="users" />
-          <MetricBadge label="Views" value={entity.views} color="views" />
-          <MetricBadge label="Certs" value={entity.certificates} color="certificates" />
+        <div className="flex items-center gap-1.5">
+          {entityMetrics.map((metric) => (
+            <MiniMetricBubble key={`${entity.name}-${metric.label}`} metric={metric} />
+          ))}
         </div>
       </div>
     </motion.div>
@@ -938,7 +1010,16 @@ function NestedPanel({ district, onClose, data, loading, error }: NestedPanelPro
           className="fixed right-0 top-0 z-[60] h-full w-full max-w-[340px] overflow-hidden border-l border-white/50 bg-white/90 shadow-[0_15px_45px_rgba(34,48,94,0.28)] backdrop-blur-[26px]"
         >
           <div className="flex h-full flex-col">
-            <RegionHeader title={district.name} onClose={onClose} variant="nested" />
+            <RegionHeader
+              title={district.name}
+              onClose={onClose}
+              variant="nested"
+              stats={[
+                { id: "users", label: miniMetricConfig.users.label, value: district.users },
+                { id: "views", label: miniMetricConfig.views.label, value: district.views },
+                { id: "certificates", label: miniMetricConfig.certificates.label, value: district.certificates },
+              ]}
+            />
             <div className="relative flex-1 overflow-y-auto bg-gradient-to-b from-[#f7f3ff] via-[#f5fbff] to-[#f1fff7] px-5 pb-8 pt-5 text-slate-900">
               <div
                 className="pointer-events-none absolute inset-0 opacity-30"

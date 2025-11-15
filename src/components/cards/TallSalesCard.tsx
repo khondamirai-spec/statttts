@@ -12,6 +12,18 @@ export default function TallSalesCard() {
   const { data: stats } = useMainStats();
   const isNegative = percentageChange < 0;
 
+  const totalRangeViews = chart.reduce((sum, point) => sum + point.value, 0);
+  const averageViews = chart.length ? totalRangeViews / chart.length : 0;
+  const peakPoint = chart.length
+    ? chart.reduce((max, point) =>
+        point.value > max.value ? point : max,
+      )
+    : null;
+  const windowLabel =
+    chart.length >= 2
+      ? `${chart[0].shortLabel} — ${chart.at(-1)!.shortLabel}`
+      : chart[0]?.shortLabel ?? "—";
+
   return (
     <GlassPanel className="tall-card">
       <div className="flex items-start justify-between gap-4">
@@ -22,7 +34,7 @@ export default function TallSalesCard() {
           <div className="mt-2 flex items-baseline gap-3">
             <AnimatedNumber
               value={today}
-              className="text-4xl font-black text-slate-900"
+              className="text-3xl font-black text-slate-900"
             />
             <span
               className={`change-pill ${isNegative ? "change-pill--down" : "change-pill--up"}`}
@@ -35,8 +47,34 @@ export default function TallSalesCard() {
             Bugungi ko’rsatkich. Kechagi kun bilan solishtirilgan.
           </p>
         </div>
-        <div className="rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-600">
-          Live
+        <div className="tall-card__status-chip">
+          <span className="tall-card__status-dot" aria-hidden />
+          <span>Live</span>
+          <strong>{formatNumber(today)}</strong>
+        </div>
+      </div>
+
+      <div className="tall-card__summary">
+        <div className="summary-tile summary-tile--primary">
+          <p className="summary-tile__label">Sana oralig’i</p>
+          <p className="summary-tile__value">{windowLabel}</p>
+          <p className="summary-tile__hint">Oxirgi 7 kunlik ko’rsatkichlar</p>
+        </div>
+        <div className="summary-tile">
+          <p className="summary-tile__label">Daily average</p>
+          <p className="summary-tile__value">
+            {formatNumber(Math.round(averageViews))}
+          </p>
+          <p className="summary-tile__hint">videodars / kun</p>
+        </div>
+        <div className="summary-tile">
+          <p className="summary-tile__label">Peak day</p>
+          <p className="summary-tile__value">
+            {peakPoint ? formatNumber(peakPoint.value) : "—"}
+          </p>
+          <p className="summary-tile__hint">
+            {peakPoint ? peakPoint.longLabel : "Ma’lumot yo’q"}
+          </p>
         </div>
       </div>
 
@@ -47,19 +85,18 @@ export default function TallSalesCard() {
           <p className="text-sm font-semibold text-slate-500">
             Eng faol kun
           </p>
-          {chart.length ? (
-            <p className="text-lg font-semibold text-slate-800">
-              {chart.reduce((max, point) =>
-                point.value > max.value ? point : max,
-              ).day}
-            </p>
+          {peakPoint ? (
+            <div className="text-lg font-semibold text-slate-800">
+              <span>{peakPoint.day}</span>{" "}
+              <span className="text-slate-500">{peakPoint.date}</span>
+            </div>
           ) : (
             <p className="text-lg font-semibold text-slate-800">—</p>
           )}
         </div>
         <div className="text-right">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            JAMI KO’RGANALAR
+            Jami ko’rgazmalar
           </p>
           <p className="text-2xl font-black text-slate-900">
             {formatNumber(stats.courseViews)}
