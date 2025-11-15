@@ -48,19 +48,21 @@ export function useDailyUsers(startDate?: string, endDate?: string) {
 
   useEffect(() => {
     if (!startDate || !endDate) return;
+    const rangeStart = startDate;
+    const rangeEnd = endDate;
     let active = true;
     const frame = requestAnimationFrame(() => {
       if (active) setLoading(true);
     });
 
-    async function fetchData() {
-      const rows = await getDailyUsers(startDate, endDate);
+    async function fetchData(from: string, to: string) {
+      const rows = await getDailyUsers(from, to);
       if (!active) return;
       setData(normalizeSeries(rows));
       setLoading(false);
     }
 
-    fetchData();
+    fetchData(rangeStart, rangeEnd);
 
     return () => {
       active = false;
