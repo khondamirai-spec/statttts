@@ -49,10 +49,9 @@ export default function RegionCard({
     <motion.div
       whileHover={{ scale: 1.02 }}
       transition={{ type: "spring", stiffness: 260, damping: 16 }}
-      className="region-card"
+      className="group region-card"
       onClick={onClick}
       style={{ cursor: onClick ? "pointer" : "default" }}
-    className="group region-card"
     >
       <div className={`region-card__icon bg-gradient-to-br text-white ${accentMap[accent]}`}>
         <LocationIcon />
