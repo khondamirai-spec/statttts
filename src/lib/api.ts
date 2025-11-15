@@ -59,6 +59,13 @@ export type RegionRow = {
   certificates?: number | string;
 };
 
+export type CountryRow = {
+  country?: string;
+  users?: number | string;
+  views?: number | string;
+  certificates?: number | string;
+};
+
 export type DistrictRow = {
   district: string;
   users?: number | string;
@@ -123,6 +130,10 @@ export type RegionParams = {
 export async function getRegions(params?: RegionParams) {
   const url = withQuery(`${STATS_BASE}/region`, params);
   return request<RegionRow[]>(url);
+}
+
+export async function getCountries() {
+  return request<CountryRow[]>(`${STATS_BASE}/country`);
 }
 
 export async function getDistricts(region: string) {

@@ -55,19 +55,19 @@ export default function TallSalesCard() {
       </div>
 
       <div className="tall-card__summary">
-        <div className="summary-tile summary-tile--primary">
+        <div className="summary-tile summary-tile--primary summary-tile--inline">
           <p className="summary-tile__label">Sana oralig’i</p>
           <p className="summary-tile__value">{windowLabel}</p>
           <p className="summary-tile__hint">Oxirgi 7 kunlik ko’rsatkichlar</p>
         </div>
-        <div className="summary-tile">
+        <div className="summary-tile summary-tile--inline">
           <p className="summary-tile__label">Daily average</p>
           <p className="summary-tile__value">
             {formatNumber(Math.round(averageViews))}
           </p>
           <p className="summary-tile__hint">videodars / kun</p>
         </div>
-        <div className="summary-tile">
+        <div className="summary-tile summary-tile--inline">
           <p className="summary-tile__label">Peak day</p>
           <p className="summary-tile__value">
             {peakPoint ? formatNumber(peakPoint.value) : "—"}

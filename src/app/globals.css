@@ -238,8 +238,19 @@ body.region-panel-open .app-nav {
 .analytics-grid {
   display: grid;
   gap: 1.5rem;
-  grid-template-columns: minmax(260px, 320px) minmax(420px, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .analytics-grid {
+    grid-template-columns: minmax(280px, 1fr) minmax(0, 2fr);
+    align-items: stretch;
+  }
+
+  .analytics-grid > .card {
+    height: 100%;
+  }
 }
 
 .kpi-grid {
@@ -561,6 +572,28 @@ body.region-panel-open .app-nav {
   flex-direction: column;
   gap: 0.25rem;
   min-width: 0;
+}
+
+.summary-tile--inline {
+  flex-direction: row;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.55rem 0.85rem;
+}
+
+.summary-tile--inline .summary-tile__label {
+  font-size: clamp(0.6rem, 1vw, 0.72rem);
+  letter-spacing: 0.12em;
+}
+
+.summary-tile--inline .summary-tile__value {
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
+  font-weight: 600;
+}
+
+.summary-tile--inline .summary-tile__hint {
+  font-size: clamp(0.65rem, 1.1vw, 0.78rem);
 }
 
 .summary-tile--primary {
