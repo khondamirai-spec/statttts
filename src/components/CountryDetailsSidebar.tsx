@@ -118,8 +118,9 @@ export default function CountryDetailsSidebar({
                   <button
                     className="rounded-full bg-white/10 px-4 py-1 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-white/20"
                     onClick={onClose}
+                    aria-label="Close"
                   >
-                    Yopish
+                    X
                   </button>
                 </div>
                 <p className="mt-3 max-w-xs text-sm text-white/80">

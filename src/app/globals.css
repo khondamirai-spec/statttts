@@ -307,6 +307,47 @@ body.region-panel-open .app-nav {
   gap: 1.5rem;
 }
 
+.tall-card__metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.06), rgba(15, 23, 42, 0.02));
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 1.25rem;
+  padding: 1.15rem 1.35rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.tall-card__metric-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #475569;
+}
+
+.tall-card__metric-main {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.tall-card__metric-value {
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.tall-card__metric-change {
+  font-size: 0.95rem;
+  text-transform: none;
+}
+
+.tall-card__chart {
+  margin-top: 1.5rem;
+}
+
 .tall-card__summary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -440,6 +481,85 @@ body.region-panel-open .app-nav {
   gap: 1rem;
   border-top: 1px solid rgba(148, 163, 184, 0.3);
   padding-top: 1rem;
+}
+
+.tall-card__total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 0.9rem 1.15rem;
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(20, 184, 166, 0.12));
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+  width: 100%;
+}
+
+.tall-card__total--peak {
+  margin-top: auto;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(14, 165, 233, 0.18));
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+.tall-card__total--peak .tall-card__total-label {
+  color: #0f172a;
+  opacity: 0.9;
+}
+
+.tall-card__total--peak .tall-card__total-value {
+  color: #111827;
+}
+
+.tall-card__total-subvalue {
+  margin: 0.2rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+  opacity: 0.8;
+}
+
+.tall-card__total-peak-icon {
+  width: 80px;
+  height: 80px;
+}
+
+.tall-card__total-label {
+  margin: 0;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  color: #0f172a;
+  opacity: 0.8;
+}
+
+.tall-card__total-value {
+  margin: 0.15rem 0 0;
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.tall-card__total-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  background: rgba(16, 185, 129, 0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+}
+
+.tall-card__total-icon span {
+  display: block;
+  width: 26px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.6);
 }
 
 .activity-card {
@@ -937,6 +1057,17 @@ body.region-panel-open .app-nav {
   width: 48px;
   height: 48px;
   border-radius: 16px;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.95);
+  box-shadow:
+    inset 0 0 12px rgba(255, 255, 255, 0.22),
+    inset 0 -6px 12px rgba(15, 23, 42, 0.18);
+}
+
+.region-card__icon svg {
+  width: 24px;
+  height: 24px;
 }
 
 .region-card__value {
@@ -947,6 +1078,40 @@ body.region-panel-open .app-nav {
   font-weight: 700;
   color: #1d4ed8;
   margin-top: 0.35rem;
+}
+
+.region-card__cta {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #2563eb;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.region-card__cta-arrow svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.25s ease;
+}
+
+.region-card:hover .region-card__cta {
+  color: #1e1b4b;
+  background: rgba(99, 102, 241, 0.18);
+  transform: translateX(2px);
+}
+
+.region-card:hover .region-card__cta-arrow svg {
+  transform: translateX(4px);
 }
 
 .region-summary {
@@ -1035,6 +1200,20 @@ body.region-panel-open .app-nav {
 
 .chart-card__body {
   height: 240px;
+  min-height: 200px;
+  width: 100%;
+}
+
+.chart-card__placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 1.25rem;
+  background: linear-gradient(
+    120deg,
+    rgba(226, 232, 240, 0.6),
+    rgba(226, 232, 240, 0.25),
+    rgba(226, 232, 240, 0.6)
+  );
 }
 
 .date-input {

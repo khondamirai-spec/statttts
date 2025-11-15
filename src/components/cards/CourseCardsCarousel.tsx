@@ -21,6 +21,11 @@ const COURSE_IMAGES: Record<string, string> = {
   "boshlang'ich dizayn": "/images/Boshlang‘ich dizayn.png",
   "boshlang‘ich dizayn": "/images/Boshlang‘ich dizayn.png",
   "grafik dizayn kursi": "/images/Grafik dizayn kursi.png",
+  "limonchilik": "/images/Limonchilik.png",
+  "limonchilik 2": "/images/Limonchilik 2.png",
+  "videomontaj": "/images/Videomontaj.png",
+  "video montaj": "/images/Videomontaj.png",
+  "avtomatizatsiya kursi": "/images/Avtomatizatsiya kursi.png",
 };
 
 const TEACHER_MAP: Record<string, string> = {

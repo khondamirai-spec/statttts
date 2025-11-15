@@ -24,16 +24,13 @@ export default async function DashboardPage() {
           <TallSalesCard />
           <WeeklyMonthlyYearlyCard />
         </div>
-        <section id="courses" className="section-block">
-          <h2>Kurslar</h2>
-          <CourseCardsCarousel />
-        </section>
         <section id="regions" className="section-block">
-          <h2>Viloyatlar</h2>
           <RegionSummaryCard />
         </section>
+        <section id="courses" className="section-block">
+          <CourseCardsCarousel />
+        </section>
         <section id="statistics" className="section-block">
-          <h2>Demografik tahlil</h2>
           <div className="grid gap-4 lg:grid-cols-2">
             <ChartCard title="Jins bo’yicha statistika" data={genderData} />
             <ChartCard title="Yosh bo’yicha statistika" data={ageData} />

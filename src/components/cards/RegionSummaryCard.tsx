@@ -71,11 +71,14 @@ function RegionPanel({
     <>
       <GlassPanel className="region-summary" disableHover={isSidebarOpen}>
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-sm	font-semibold uppercase tracking-wide text-slate-500">
-              Viloyatlar kesimi
-            </p>
-            <p className="text-xs text-slate-400">
+          <div className="space-y-1 text-slate-900">
+            <div className="flex items-center gap-3">
+              <span className="h-px flex-1 max-w-[60px] bg-gradient-to-r from-indigo-500 via-purple-500 to-orange-400" />
+              <p className="text-base font-black uppercase tracking-[0.4em] text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-orange-400 bg-clip-text drop-shadow">
+                Viloyatlar kesimi
+              </p>
+            </div>
+            <p className="text-sm font-medium text-slate-600">
               Foydalanuvchilar va ko’rishlar bo’yicha TOP hududlar
             </p>
           </div>
@@ -159,11 +162,14 @@ function CountryPanel({ data, totals, loading, error }: CountryPanelProps) {
     <>
       <GlassPanel className="region-summary" disableHover={isSidebarOpen}>
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-              Davlatlar kesimi
-            </p>
-            <p className="text-xs text-slate-400">
+          <div className="space-y-1 text-slate-900">
+            <div className="flex items-center gap-3">
+              <span className="h-px flex-1 max-w-[60px] bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500" />
+              <p className="text-base font-black uppercase tracking-[0.4em] text-transparent bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500 bg-clip-text drop-shadow">
+                Davlatlar kesimi
+              </p>
+            </div>
+            <p className="text-sm font-medium text-slate-600">
               Foydalanuvchilar va ko’rishlar bo’yicha TOP davlatlar
             </p>
           </div>

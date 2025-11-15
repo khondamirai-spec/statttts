@@ -33,11 +33,6 @@ export default function NavigationBar() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (window.scrollY < 200) {
-          setActiveHash("");
-          window.history.replaceState(null, "", "/");
-          return;
-        }
         const visible = entries
           .filter((entry) => entry.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
@@ -45,7 +40,10 @@ export default function NavigationBar() {
           const nextHash = `#${visible.target.id}`;
           setActiveHash(nextHash);
           window.history.replaceState(null, "", nextHash);
-        } else if (window.scrollY < 200) {
+          return;
+        }
+
+        if (window.scrollY < 200) {
           setActiveHash("");
           window.history.replaceState(null, "", "/");
         }

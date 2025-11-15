@@ -312,19 +312,14 @@ export default function WeeklyMonthlyYearlyCard() {
             value={total}
             className="summary-tile__value summary-tile__value--xl"
           />
-          <p className="summary-tile__hint">Yig'ilgan foydalanuvchilar soni</p>
         </div>
         <div className="summary-tile">
           <p className="summary-tile__label">Daily Average</p>
           <p className="summary-tile__value">{formatNumber(dailyAvg)}</p>
-          <p className="summary-tile__hint">foydalanuvchi / kun</p>
         </div>
         <div className="summary-tile">
           <p className="summary-tile__label">Peak Day</p>
           <p className="summary-tile__value">{formatNumber(peakDay)}</p>
-          <p className="summary-tile__hint">
-            {peakPoint ? PEAK_DAY_FORMATTER.format(toUTCDate(peakPoint.date)) : "—"}
-          </p>
         </div>
       </div>
 
@@ -463,14 +458,6 @@ export default function WeeklyMonthlyYearlyCard() {
         </div>
       </div>
 
-      <div className="activity-card__footer">
-        <div className="activity-card__footer-status">
-          <span className="activity-card__status-dot" />
-          <span>
-            Data yangilanishi: {loading ? "yuklanmoqda…" : "real vaqt rejimida"}
-          </span>
-        </div>
-      </div>
     </GlassPanel>
   );
 }

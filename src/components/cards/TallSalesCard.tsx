@@ -12,96 +12,121 @@ export default function TallSalesCard() {
   const { data: stats } = useMainStats();
   const isNegative = percentageChange < 0;
 
-  const totalRangeViews = chart.reduce((sum, point) => sum + point.value, 0);
-  const averageViews = chart.length ? totalRangeViews / chart.length : 0;
   const peakPoint = chart.length
     ? chart.reduce((max, point) =>
         point.value > max.value ? point : max,
       )
     : null;
-  const windowLabel =
-    chart.length >= 2
-      ? `${chart[0].shortLabel} — ${chart.at(-1)!.shortLabel}`
-      : chart[0]?.shortLabel ?? "—";
 
   return (
     <GlassPanel className="tall-card">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-wider text-slate-500">
-            Kunlik ko’rilgan videodarslar soni
-          </p>
-          <div className="mt-2 flex items-baseline gap-3">
-            <AnimatedNumber
-              value={today}
-              className="text-3xl font-black text-slate-900"
-            />
-            <span
-              className={`change-pill ${isNegative ? "change-pill--down" : "change-pill--up"}`}
-            >
-              {isNegative ? "−" : "+"}
-              {Math.abs(percentageChange).toFixed(1)}%
-            </span>
-          </div>
-          <p className="text-xs text-slate-500">
-            Bugungi ko’rsatkich. Kechagi kun bilan solishtirilgan.
-          </p>
+      <div className="tall-card__metric">
+        <div className="tall-card__metric-label">
+          KUNLIK KO’RILGAN VIDEODARSLAR SONI
         </div>
-        <div className="tall-card__status-chip">
-          <span className="tall-card__status-dot" aria-hidden />
-          <span>Live</span>
-          <strong>{formatNumber(today)}</strong>
+        <div className="tall-card__metric-main">
+          <AnimatedNumber value={today} className="tall-card__metric-value" />
+          <span
+            className={`change-pill tall-card__metric-change ${isNegative ? "change-pill--down" : "change-pill--up"}`}
+          >
+            {isNegative ? "−" : "+"}
+            {Math.abs(percentageChange).toFixed(1)}%
+          </span>
         </div>
       </div>
-
-      <div className="tall-card__summary">
-        <div className="summary-tile summary-tile--primary summary-tile--inline">
-          <p className="summary-tile__label">Sana oralig’i</p>
-          <p className="summary-tile__value">{windowLabel}</p>
-          <p className="summary-tile__hint">Oxirgi 7 kunlik ko’rsatkichlar</p>
-        </div>
-        <div className="summary-tile summary-tile--inline">
-          <p className="summary-tile__label">Daily average</p>
-          <p className="summary-tile__value">
-            {formatNumber(Math.round(averageViews))}
-          </p>
-          <p className="summary-tile__hint">videodars / kun</p>
-        </div>
-        <div className="summary-tile summary-tile--inline">
-          <p className="summary-tile__label">Peak day</p>
-          <p className="summary-tile__value">
-            {peakPoint ? formatNumber(peakPoint.value) : "—"}
-          </p>
-          <p className="summary-tile__hint">
-            {peakPoint ? peakPoint.longLabel : "Ma’lumot yo’q"}
-          </p>
-        </div>
+      <div className="tall-card__chart">
+        <MiniBarChart data={chart} loading={loading} />
       </div>
-
-      <MiniBarChart data={chart} loading={loading} />
 
       <div className="tall-card__footer">
+        <div className="tall-card__total">
+          <div>
+            <p className="tall-card__total-label">Jami ko’rgazmalar</p>
+            <p className="tall-card__total-value">
+              {formatNumber(stats.courseViews)}
+            </p>
+          </div>
+          <svg
+            className="h-12 w-12 text-slate-900"
+            viewBox="0 0 48 48"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <rect
+              x="4"
+              y="4"
+              width="40"
+              height="40"
+              rx="10"
+              className="fill-slate-100"
+            />
+            <path
+              d="M12 30L20 22L26 28L36 18"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M32 18H37V23"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div className="tall-card__total tall-card__total--peak">
         <div>
-          <p className="text-sm font-semibold text-slate-500">
-            Eng faol kun
+          <p className="tall-card__total-label">Eng faol kun</p>
+          <p className="tall-card__total-value">
+            {peakPoint ? `${peakPoint.day} ${peakPoint.date}` : "Aniqlanmagan"}
           </p>
-          {peakPoint ? (
-            <div className="text-lg font-semibold text-slate-800">
-              <span>{peakPoint.day}</span>{" "}
-              <span className="text-slate-500">{peakPoint.date}</span>
-            </div>
-          ) : (
-            <p className="text-lg font-semibold text-slate-800">—</p>
-          )}
-        </div>
-        <div className="text-right">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            Jami ko’rgazmalar
-          </p>
-          <p className="text-2xl font-black text-slate-900">
-            {formatNumber(stats.courseViews)}
+          <p className="tall-card__total-subvalue">
+            {peakPoint
+              ? `${formatNumber(peakPoint.value)} ta ko’rish`
+              : `Jami ${formatNumber(stats.courseViews)} ko’rgazma`}
           </p>
         </div>
+        <svg
+          className="tall-card__total-peak-icon"
+          viewBox="0 0 72 72"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <defs>
+            <linearGradient id="peakGradient" x1="0" y1="0" x2="72" y2="72">
+              <stop offset="0" stopColor="#38bdf8" />
+              <stop offset="1" stopColor="#6366f1" />
+            </linearGradient>
+          </defs>
+          <circle
+            cx="36"
+            cy="36"
+            r="32"
+            fill="url(#peakGradient)"
+            opacity="0.15"
+          />
+          <path
+            d="M20 44L30 34L38 40L52 26"
+            stroke="#2563eb"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M48 26H54V32"
+            stroke="#2563eb"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <circle cx="52" cy="28" r="4" fill="#2563eb" />
+        </svg>
       </div>
     </GlassPanel>
   );

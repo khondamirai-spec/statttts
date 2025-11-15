@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import {
   PieChart,
   Pie,
@@ -60,54 +61,121 @@ const CustomTooltip = ({ active, payload }) => {
 };
 
 export default function ChartCard({ title, data }) {
+  const wrapperRef = useRef(null);
+  const bodyRef = useRef(null);
+  const [hasSize, setHasSize] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const node = wrapperRef.current;
+    if (!node) return;
+
+    if (typeof IntersectionObserver === "undefined") {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.25 }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const node = bodyRef.current;
+    if (!node) return;
+
+    const updateSize = ({ width, height }) => {
+      const next = width > 0 && height > 0;
+      setHasSize((prev) => (prev === next ? prev : next));
+    };
+
+    const measure = () => {
+      const rect = node.getBoundingClientRect();
+      updateSize(rect);
+    };
+
+    measure();
+
+    if (typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver((entries) => {
+        entries.forEach((entry) => updateSize(entry.contentRect));
+      });
+      observer.observe(node);
+      return () => observer.disconnect();
+    }
+
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
   return (
-    <GlassPanel className="chart-card">
+    <div ref={wrapperRef}>
+      <GlassPanel className="chart-card">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
         <span className="rounded-full bg-white/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
           % ulushi
         </span>
       </div>
-      <div className="chart-card__body">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <defs>
-              {GRADIENTS.map(([start, end], index) => (
-                <linearGradient
-                  key={index}
-                  id={`chart-slice-${index}`}
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="100%"
-                >
-                  <stop offset="0%" stopColor={start} />
-                  <stop offset="100%" stopColor={end} />
-                </linearGradient>
-              ))}
-            </defs>
-            <Pie
-              data={data}
-              dataKey="value"
-              nameKey="name"
-              innerRadius="45%"
-              outerRadius="70%"
-              paddingAngle={2}
-              labelLine={false}
-              label={renderLabel}
-            >
-              {data.map((entry, index) => (
-                <Cell
-                  key={`slice-${entry.name}`}
-                  fill={`url(#chart-slice-${index % GRADIENTS.length})`}
-                />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
-          </PieChart>
-        </ResponsiveContainer>
+      <div className="chart-card__body" ref={bodyRef}>
+        {hasSize && isVisible ? (
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+            minWidth={120}
+            minHeight={120}
+          >
+            <PieChart>
+              <defs>
+                {GRADIENTS.map(([start, end], index) => (
+                  <linearGradient
+                    key={index}
+                    id={`chart-slice-${index}`}
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                  >
+                    <stop offset="0%" stopColor={start} />
+                    <stop offset="100%" stopColor={end} />
+                  </linearGradient>
+                ))}
+              </defs>
+              <Pie
+                data={data}
+                dataKey="value"
+                nameKey="name"
+                innerRadius="45%"
+                outerRadius="70%"
+                paddingAngle={2}
+                labelLine={false}
+                label={renderLabel}
+              >
+                {data.map((entry, index) => (
+                  <Cell
+                    key={`slice-${entry.name}`}
+                    fill={`url(#chart-slice-${index % GRADIENTS.length})`}
+                  />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+            </PieChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="chart-card__placeholder shimmer" aria-hidden="true" />
+        )}
       </div>
     </GlassPanel>
+    </div>
   );
 }
 
