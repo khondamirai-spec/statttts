@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DateRangePicker from "@/components/shared/DateRangePicker";
 import GlassPanel from "@/components/ui/GlassPanel";
 import RegionCard from "@/components/RegionCard";
@@ -26,10 +26,10 @@ function initialRange() {
 const accents: RegionAccent[] = ["purple", "orange", "blue", "green"];
 
 type RegionSummaryPanelProps = {
-  start: Date;
-  end: Date;
-  onStartDateChange: (date: Date | null) => void;
-  onEndDateChange: (date: Date | null) => void;
+  start: Date | null;
+  end: Date | null;
+  onStartDateChange: (date?: Date | null) => void;
+  onEndDateChange: (date?: Date | null) => void;
   data: RegionStat[];
   totals: RegionTotals;
   loading: boolean;
@@ -77,8 +77,8 @@ function RegionSummaryPanel({
           </p>
         </div>
         <DateRangePicker
-          startDate={start}
-          endDate={end}
+          startDate={start ?? undefined}
+          endDate={end ?? undefined}
           onStartDateChange={onStartDateChange}
           onEndDateChange={onEndDateChange}
           className="w-full max-w-xs"
@@ -145,20 +145,30 @@ function RegionSummaryPanel({
 }
 
 export default function RegionSummaryCard() {
-  const [{ start, end }, setRange] = useState(initialRange);
+  const [{ start, end }, setRange] = useState<{
+    start: Date | null;
+    end: Date | null;
+  }>(() => ({ start: null, end: null }));
+
+  useEffect(() => {
+    setRange(initialRange());
+  }, []);
 
   const statsOptions = useMemo(
-    () => ({ startDate: start, endDate: end }),
+    () => {
+      if (!start || !end) return undefined;
+      return { startDate: start, endDate: end };
+    },
     [start, end],
   );
   const { data, totals, loading, error } = useRegionStats(statsOptions);
 
-  const handleStartDateChange = (date: Date | null) => {
+  const handleStartDateChange = (date?: Date | null) => {
     if (!date) return;
     setRange(({ end }) => ({ start: date, end }));
   };
 
-  const handleEndDateChange = (date: Date | null) => {
+  const handleEndDateChange = (date?: Date | null) => {
     if (!date) return;
     setRange(({ start }) => ({ start, end: date }));
   };

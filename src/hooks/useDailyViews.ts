@@ -69,17 +69,22 @@ function computePercentage(rows: SeriesRow[]) {
 }
 
 export function useDailyViews() {
-  const [{ start, end }, setWindow] = useState(buildWindow);
+  const [window, setWindow] = useState<{ start: string; end: string } | null>(null);
   const [series, setSeries] = useState<SeriesRow[]>(fallbackSeries);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setWindow(buildWindow());
+  }, []);
+
+  useEffect(() => {
+    if (!window) return;
     let active = true;
     const frame = requestAnimationFrame(() => {
       if (active) setLoading(true);
     });
     async function fetchData() {
-      const rows = await getDailyViews(start, end);
+      const rows = await getDailyViews(window.start, window.end);
       if (!active) return;
       if (!rows || !rows.length) {
         setSeries(fallbackSeries);
@@ -100,7 +105,7 @@ export function useDailyViews() {
       clearInterval(timer);
       cancelAnimationFrame(frame);
     };
-  }, [start, end]);
+  }, [window]);
 
   const chart = useMemo(() => formatChartRows(series), [series]);
   const today = series.at(-1)?.count ?? fallbackSeries.at(-1)!.count;

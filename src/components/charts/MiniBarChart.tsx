@@ -27,7 +27,7 @@ export default function MiniBarChart({ data, loading }: MiniBarChartProps) {
         return (
           <div key={`${point.day}-${point.date}`} className="mini-bar">
             <span className="mini-bar__value">
-              {point.value.toLocaleString("uz-UZ")}
+              {point.value.toLocaleString("en-US")}
             </span>
             <div className="mini-bar__track">
               <div

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import DateRangePicker from "@/components/shared/DateRangePicker";
 import GlassPanel from "@/components/ui/GlassPanel";
@@ -40,15 +40,22 @@ function createCurve(points: { x: number; y: number }[]) {
 }
 
 export default function WeeklyMonthlyYearlyCard() {
-  const [{ start, end }, setRange] = useState(initialRange);
-  const startISO = formatDateISO(start);
-  const endISO = formatDateISO(end);
+  const [{ start, end }, setRange] = useState<{
+    start: Date | null;
+    end: Date | null;
+  }>(() => ({ start: null, end: null }));
+  const startISO = start ? formatDateISO(start) : undefined;
+  const endISO = end ? formatDateISO(end) : undefined;
   const { data, total, dailyAvg, peakDay, growth, loading } = useDailyUsers(
     startISO,
     endISO,
   );
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setRange(initialRange());
+  }, []);
 
   const chartData = useMemo(() => {
     const values = data.map((point) => point.count);
@@ -138,8 +145,8 @@ export default function WeeklyMonthlyYearlyCard() {
           </p>
         </div>
         <DateRangePicker
-          startDate={start}
-          endDate={end}
+          startDate={start ?? undefined}
+          endDate={end ?? undefined}
           onStartDateChange={(value) =>
             value && setRange(({ end }) => ({ start: value, end }))
           }

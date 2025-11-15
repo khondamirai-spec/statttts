@@ -42,11 +42,12 @@ function normalizeSeries(rows: SeriesRow[] | null): DailyUserPoint[] {
   }));
 }
 
-export function useDailyUsers(startDate: string, endDate: string) {
+export function useDailyUsers(startDate?: string, endDate?: string) {
   const [data, setData] = useState<DailyUserPoint[]>(fallbackSeries);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!startDate || !endDate) return;
     let active = true;
     const frame = requestAnimationFrame(() => {
       if (active) setLoading(true);

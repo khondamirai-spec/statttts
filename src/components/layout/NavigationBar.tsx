@@ -16,11 +16,14 @@ const navLinks = [
 export default function NavigationBar() {
   const router = useRouter();
   const pathname = usePathname();
-  const [activeHash, setActiveHash] = useState<string>(() => {
-    if (typeof window === "undefined") return "";
-    return window.location.hash || "";
-  });
+  const [activeHash, setActiveHash] = useState<string>("");
   const isDashboard = pathname === "/";
+
+  useEffect(() => {
+    if (isDashboard) {
+      setActiveHash(window.location.hash || "");
+    }
+  }, [isDashboard]);
 
   useEffect(() => {
     if (!isDashboard) return;

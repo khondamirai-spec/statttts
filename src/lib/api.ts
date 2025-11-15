@@ -62,6 +62,8 @@ export type RegionRow = {
 export type DistrictRow = {
   district: string;
   users?: number | string;
+  views?: number | string;
+  certificates?: number | string;
 };
 
 export type MFYRow = {
@@ -72,6 +74,27 @@ export type MFYRow = {
 export type SchoolRow = {
   school: string;
   users?: number | string;
+};
+
+export type VillageRow = {
+  neighborhood?: string;
+  mfy?: string;
+  users?: number | string;
+  views?: number | string;
+  certificates?: number | string;
+};
+
+export type VillageSchoolRow = {
+  organization?: string;
+  school?: string;
+  users?: number | string;
+  views?: number | string;
+  certificates?: number | string;
+};
+
+export type VillageSchoolResponse = {
+  villages?: VillageRow[];
+  schools?: VillageSchoolRow[];
 };
 
 export type CourseRow = {
@@ -115,6 +138,15 @@ export async function getMFY(region: string, district: string) {
 export async function getSchools(region: string, district: string) {
   const url = withQuery(`${STATS_BASE}/school`, { region, district });
   return request<SchoolRow[]>(url);
+}
+
+export async function getVillageSchool(region: string, district?: string) {
+  const params: Record<string, string> = { region };
+  if (district) {
+    params.district = district;
+  }
+  const url = withQuery(`${STATS_BASE}/village-school`, params);
+  return request<VillageSchoolResponse>(url);
 }
 
 export async function getCourses(startDate: string, endDate: string) {

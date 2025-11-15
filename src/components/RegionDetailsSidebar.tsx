@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Award, Eye, UsersRound, X } from "lucide-react";
-import { formatNumber } from "@/lib/utils";
+import type { LucideIcon } from "lucide-react";
+import { getDistricts, getVillageSchool } from "@/lib/api";
+import { formatNumber, toNumber } from "@/lib/utils";
 import type { RegionStat } from "@/hooks/useRegionStats";
 
 type PanelTab = "districts" | "mfy" | "schools";
@@ -16,6 +18,45 @@ type MetricEntity = {
   certificates: number;
 };
 
+type VillageSchoolMetrics = {
+  mfys: MetricEntity[];
+  schools: MetricEntity[];
+};
+
+const emptyVillageSchool: VillageSchoolMetrics = { mfys: [], schools: [] };
+
+function normalizeDistricts(rows: Awaited<ReturnType<typeof getDistricts>>) {
+  if (!rows) return [];
+  return rows.map((row, index) => ({
+    name: row?.district ?? `Tuman ${index + 1}`,
+    users: toNumber(row?.users),
+    views: toNumber(row?.views),
+    certificates: toNumber(row?.certificates),
+  }));
+}
+
+function normalizeVillageSchool(
+  payload: Awaited<ReturnType<typeof getVillageSchool>>,
+): VillageSchoolMetrics {
+  const villages =
+    payload?.villages?.map((row, index) => ({
+      name: row?.neighborhood ?? row?.mfy ?? `MFY ${index + 1}`,
+      users: toNumber(row?.users),
+      views: toNumber(row?.views),
+      certificates: toNumber(row?.certificates),
+    })) ?? [];
+
+  const schools =
+    payload?.schools?.map((row, index) => ({
+      name: row?.organization ?? row?.school ?? `Maktab ${index + 1}`,
+      users: toNumber(row?.users),
+      views: toNumber(row?.views),
+      certificates: toNumber(row?.certificates),
+    })) ?? [];
+
+  return { mfys: villages, schools };
+}
+
 export type RegionAccent = "purple" | "orange" | "blue" | "green";
 
 export type RegionDetailsRegion = RegionStat & {
@@ -26,97 +67,6 @@ type RegionDetailsSidebarProps = {
   region: RegionDetailsRegion | null;
   isOpen: boolean;
   onClose: () => void;
-};
-
-const districtPlaceholders: MetricEntity[] = [
-  { name: "Shovot tumani", users: 14155, views: 13776, certificates: 107 },
-  { name: "Gurlan tumani", users: 13639, views: 18791, certificates: 71 },
-  { name: "Urganch tumani", users: 10767, views: 13916, certificates: 123 },
-  { name: "Hazorasp tumani", users: 12440, views: 15032, certificates: 99 },
-  { name: "Xiva shahri", users: 16331, views: 21045, certificates: 188 },
-];
-
-const mfyOverview: MetricEntity[] = [
-  { name: "Nurafshon MFY", users: 4220, views: 6185, certificates: 45 },
-  { name: "Yangiobod MFY", users: 3870, views: 5112, certificates: 38 },
-  { name: "Bog'ishamol MFY", users: 3511, views: 4899, certificates: 31 },
-  { name: "Navbahor MFY", users: 3299, views: 4411, certificates: 28 },
-];
-
-const schoolOverview: MetricEntity[] = [
-  { name: "62-maktab", users: 980, views: 2440, certificates: 28 },
-  { name: "15-maktab", users: 1113, views: 3028, certificates: 35 },
-  { name: "27-maktab", users: 874, views: 1985, certificates: 19 },
-  { name: "1-ixtisoslashgan maktab", users: 1336, views: 3891, certificates: 44 },
-];
-
-const districtNestedDetails: Record<
-  string,
-  { mfys: MetricEntity[]; schools: MetricEntity[] }
-> = {
-  "Shovot tumani": {
-    mfys: [
-      { name: "Gulzor MFY", users: 1595, views: 2143, certificates: 16 },
-      { name: "Darvozatau MFY", users: 1322, views: 1890, certificates: 11 },
-      { name: "Ibn Sino MFY", users: 1186, views: 1674, certificates: 9 },
-    ],
-    schools: [
-      { name: "4-maktab", users: 402, views: 930, certificates: 11 },
-      { name: "18-maktab", users: 511, views: 1124, certificates: 14 },
-    ],
-  },
-  "Gurlan tumani": {
-    mfys: [
-      { name: "Amudaryo MFY", users: 1484, views: 2331, certificates: 19 },
-      { name: "Nukus MFY", users: 1359, views: 2007, certificates: 15 },
-    ],
-    schools: [
-      { name: "7-maktab", users: 366, views: 877, certificates: 9 },
-      { name: "22-maktab", users: 498, views: 1084, certificates: 13 },
-      { name: "35-maktab", users: 431, views: 967, certificates: 10 },
-    ],
-  },
-  "Urganch tumani": {
-    mfys: [
-      { name: "Mustaqillik MFY", users: 1204, views: 1766, certificates: 13 },
-      { name: "Qorasuv MFY", users: 1090, views: 1595, certificates: 10 },
-    ],
-    schools: [
-      { name: "9-maktab", users: 415, views: 1007, certificates: 12 },
-      { name: "33-maktab", users: 386, views: 921, certificates: 8 },
-    ],
-  },
-  "Hazorasp tumani": {
-    mfys: [
-      { name: "Do'stlik MFY", users: 1430, views: 2054, certificates: 18 },
-      { name: "Temiryo'lchi MFY", users: 1182, views: 1569, certificates: 14 },
-    ],
-    schools: [
-      { name: "12-maktab", users: 442, views: 1098, certificates: 13 },
-      { name: "28-maktab", users: 523, views: 1266, certificates: 16 },
-    ],
-  },
-  "Xiva shahri": {
-    mfys: [
-      { name: "Ichan-Qal'a MFY", users: 1755, views: 2898, certificates: 22 },
-      { name: "Qiyot MFY", users: 1608, views: 2481, certificates: 19 },
-    ],
-    schools: [
-      { name: "3-ixtisoslashgan maktab", users: 612, views: 1502, certificates: 21 },
-      { name: "5-maktab", users: 701, views: 1680, certificates: 17 },
-    ],
-  },
-};
-
-const defaultNested = {
-  mfys: [
-    { name: "Yuksalish MFY", users: 980, views: 1440, certificates: 12 },
-    { name: "Kamolot MFY", users: 845, views: 1315, certificates: 10 },
-  ],
-  schools: [
-    { name: "10-maktab", users: 350, views: 780, certificates: 8 },
-    { name: "44-maktab", users: 298, views: 655, certificates: 6 },
-  ],
 };
 
 const metricBadgeStyles = {
@@ -157,12 +107,27 @@ export default function RegionDetailsSidebar({
   const [selectedDistrict, setSelectedDistrict] = useState<MetricEntity | null>(null);
   const [contentLoading, setContentLoading] = useState(false);
   const loadingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [districts, setDistricts] = useState<MetricEntity[]>([]);
+  const [districtsLoading, setDistrictsLoading] = useState(false);
+  const [districtsError, setDistrictsError] = useState<string | null>(null);
+  const [regionVillageData, setRegionVillageData] = useState<VillageSchoolMetrics | null>(null);
+  const [regionVillageLoading, setRegionVillageLoading] = useState(false);
+  const [regionVillageError, setRegionVillageError] = useState<string | null>(null);
+  const [districtVillageData, setDistrictVillageData] = useState<VillageSchoolMetrics | null>(null);
+  const [districtVillageLoading, setDistrictVillageLoading] = useState(false);
+  const [districtVillageError, setDistrictVillageError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) {
       setSelectedDistrict(null);
       setActiveTab("districts");
       setContentLoading(false);
+      setRegionVillageData(null);
+      setRegionVillageError(null);
+      setRegionVillageLoading(false);
+      setDistrictVillageData(null);
+      setDistrictVillageError(null);
+      setDistrictVillageLoading(false);
     }
   }, [isOpen]);
 
@@ -175,10 +140,119 @@ export default function RegionDetailsSidebar({
   }, []);
 
   useEffect(() => {
-    if (activeTab !== "districts") {
+    if (!region?.region || !isOpen) {
+      setDistricts([]);
       setSelectedDistrict(null);
+      setDistrictsError(null);
+      setDistrictsLoading(false);
+      return;
     }
-  }, [activeTab]);
+
+    let active = true;
+    setDistrictsLoading(true);
+    setDistrictsError(null);
+
+    getDistricts(region.region)
+      .then((rows) => {
+        if (!active) return;
+        const normalized = normalizeDistricts(rows);
+        if (!rows) {
+          setDistrictsError("Ma’lumotlarni yuklab bo‘lmadi. Qayta urinib ko‘ring.");
+        }
+        setDistricts(normalized);
+      })
+      .catch(() => {
+        if (!active) return;
+        setDistrictsError("Ma’lumotlarni yuklab bo‘lmadi. Qayta urinib ko‘ring.");
+        setDistricts([]);
+      })
+      .finally(() => {
+        if (active) {
+          setDistrictsLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [region?.region, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !region?.region) {
+      setRegionVillageData(null);
+      setRegionVillageError(null);
+      setRegionVillageLoading(false);
+      return;
+    }
+
+    let active = true;
+    setRegionVillageLoading(true);
+    setRegionVillageError(null);
+
+    getVillageSchool(region.region)
+      .then((payload) => {
+        if (!active) return;
+        if (!payload) {
+          setRegionVillageError("MFY va maktab ma’lumotlarini yuklab bo‘lmadi.");
+          setRegionVillageData(null);
+          return;
+        }
+        setRegionVillageData(normalizeVillageSchool(payload));
+      })
+      .catch(() => {
+        if (!active) return;
+        setRegionVillageError("MFY va maktab ma’lumotlarini yuklab bo‘lmadi.");
+        setRegionVillageData(null);
+      })
+      .finally(() => {
+        if (active) {
+          setRegionVillageLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [isOpen, region?.region]);
+
+  useEffect(() => {
+    if (!region?.region || !selectedDistrict) {
+      setDistrictVillageData(null);
+      setDistrictVillageError(null);
+      setDistrictVillageLoading(false);
+      return;
+    }
+
+    let active = true;
+    setDistrictVillageLoading(true);
+    setDistrictVillageError(null);
+    setDistrictVillageData(null);
+
+    getVillageSchool(region.region, selectedDistrict.name)
+      .then((payload) => {
+        if (!active) return;
+        if (!payload) {
+          setDistrictVillageError("Ma’lumotlarni yuklab bo‘lmadi. Qayta urinib ko‘ring.");
+          setDistrictVillageData(null);
+          return;
+        }
+        setDistrictVillageData(normalizeVillageSchool(payload));
+      })
+      .catch(() => {
+        if (!active) return;
+        setDistrictVillageError("Ma’lumotlarni yuklab bo‘lmadi. Qayta urinib ko‘ring.");
+        setDistrictVillageData(null);
+      })
+      .finally(() => {
+        if (active) {
+          setDistrictVillageLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [region?.region, selectedDistrict]);
 
   const stats = useMemo(
     () => [
@@ -200,6 +274,14 @@ export default function RegionDetailsSidebar({
     ],
     [region],
   );
+  const hasDistrictSelection = Boolean(selectedDistrict);
+  const combinedVillageData = hasDistrictSelection ? districtVillageData : regionVillageData;
+  const combinedVillageLoading = hasDistrictSelection
+    ? districtVillageLoading
+    : regionVillageLoading;
+  const combinedVillageError = hasDistrictSelection
+    ? districtVillageError
+    : regionVillageError;
 
   const handleTabChange = (tab: PanelTab) => {
     if (tab === activeTab) return;
@@ -262,16 +344,36 @@ export default function RegionDetailsSidebar({
                     >
                       {activeTab === "districts" && (
                         <DistrictList
-                          data={districtPlaceholders}
-                          loading={contentLoading}
+                          data={districts}
+                          loading={contentLoading || districtsLoading}
+                          error={districtsError}
                           onSelect={setSelectedDistrict}
+                          activeName={selectedDistrict?.name}
                         />
                       )}
                       {activeTab === "mfy" && (
-                        <MfyList data={mfyOverview} loading={contentLoading} />
+                        <MfyList
+                          data={combinedVillageData?.mfys ?? []}
+                          loading={contentLoading || combinedVillageLoading}
+                          error={combinedVillageError}
+                          emptyMessage={
+                            hasDistrictSelection
+                              ? "MFY ma’lumotlari topilmadi."
+                              : "Hudud bo‘yicha MFY ma’lumotlari topilmadi."
+                          }
+                        />
                       )}
                       {activeTab === "schools" && (
-                        <SchoolList data={schoolOverview} loading={contentLoading} />
+                        <SchoolList
+                          data={combinedVillageData?.schools ?? []}
+                          loading={contentLoading || combinedVillageLoading}
+                          error={combinedVillageError}
+                          emptyMessage={
+                            hasDistrictSelection
+                              ? "Maktab ma’lumotlari topilmadi."
+                              : "Hudud bo‘yicha maktab ma’lumotlari topilmadi."
+                          }
+                        />
                       )}
                     </motion.div>
                   </AnimatePresence>
@@ -283,6 +385,9 @@ export default function RegionDetailsSidebar({
           <NestedPanel
             district={selectedDistrict}
             onClose={() => setSelectedDistrict(null)}
+            data={districtVillageData}
+            loading={districtVillageLoading}
+            error={districtVillageError}
           />
         </>
       )}
@@ -331,6 +436,11 @@ function RegionHeader({
 }: RegionHeaderProps) {
   const isPrimary = variant === "primary";
   const headerGradient = headerGradientMap[accent] ?? headerGradientMap.purple;
+  const statIconMap: Record<string, LucideIcon> = {
+    users: UsersRound,
+    views: Eye,
+    certificates: Award,
+  };
   return (
     <div
       className={`sticky top-0 z-20 px-7 ${
@@ -364,18 +474,22 @@ function RegionHeader({
             </motion.button>
           </div>
           {!!stats.length && (
-            <div className="flex flex-wrap items-center gap-2">
-              {stats.map((stat) => (
-                <span
-                  key={stat.id}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-white/70 shadow-[0_8px_20px_rgba(255,255,255,0.12)] transition-all duration-200 hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/20 hover:text-white"
-                >
-                  {stat.label}
-                  <span className="text-base tracking-tight text-white transition-colors duration-200">
-                    {formatNumber(stat.value)}
+            <div className="flex flex-nowrap items-center gap-2">
+              {stats.map((stat) => {
+                const Icon = statIconMap[stat.id] ?? UsersRound;
+                return (
+                  <span
+                    key={stat.id}
+                    className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-white/70 shadow-[0_8px_20px_rgba(255,255,255,0.12)] transition-all duration-200 hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/20 hover:text-white"
+                  >
+                    <Icon className="h-3.5 w-3.5 text-white" aria-hidden="true" />
+                    <span className="text-base tracking-tight text-white transition-colors duration-200">
+                      {formatNumber(stat.value)}
+                    </span>
+                    <span className="sr-only">{stat.label}</span>
                   </span>
-                </span>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -466,6 +580,8 @@ type DistrictListProps = {
   data: MetricEntity[];
   loading?: boolean;
   onSelect?: (district: MetricEntity) => void;
+  error?: string | null;
+  activeName?: string;
 };
 
 type ListSectionProps = {
@@ -487,20 +603,25 @@ function ListSection({ title, children }: ListSectionProps) {
   );
 }
 
-function DistrictList({ data, loading, onSelect }: DistrictListProps) {
+function DistrictList({ data, loading, onSelect, error, activeName }: DistrictListProps) {
   return (
     <ListSection title="Tumanlar">
       {loading ? (
         <SkeletonList rows={3} />
-      ) : (
+      ) : error ? (
+        <ErrorNotice message={error} />
+      ) : data.length ? (
         data.map((district, index) => (
           <DistrictCard
-            key={district.name}
+            key={`${district.name}-${index}`}
             district={district}
             delay={index * 0.05}
             onSelect={onSelect}
+            isActive={district.name === activeName}
           />
         ))
+      ) : (
+        <EmptyStateNotice message="Tuman/shahar ma’lumotlari topilmadi." />
       )}
     </ListSection>
   );
@@ -510,9 +631,10 @@ type DistrictCardProps = {
   district: MetricEntity;
   onSelect?: (district: MetricEntity) => void;
   delay?: number;
+  isActive?: boolean;
 };
 
-function DistrictCard({ district, onSelect, delay = 0 }: DistrictCardProps) {
+function DistrictCard({ district, onSelect, delay = 0, isActive }: DistrictCardProps) {
   const miniMetrics: MiniMetric[] = [
     {
       label: miniMetricConfig.users.label,
@@ -540,7 +662,9 @@ function DistrictCard({ district, onSelect, delay = 0 }: DistrictCardProps) {
       whileHover={{ scale: 1.015 }}
       whileTap={{ scale: 0.99 }}
       transition={{ delay, duration: 0.25, ease: "easeOut" }}
-      className="group relative w-full rounded-3xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a06bff]/40"
+      className={`group relative w-full rounded-3xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a06bff]/40 ${
+        isActive ? "ring-2 ring-[#a06bff]/50" : ""
+      }`}
     >
       <span className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-r from-[#a06bff]/35 via-[#4cc7ff]/25 to-[#70e09a]/35 opacity-50 transition-opacity duration-300 group-hover:opacity-90" />
       <span className="pointer-events-none absolute inset-[1px] rounded-[30px] bg-white/85" />
@@ -645,31 +769,41 @@ function MetricBadge({ label, value, color }: MetricBadgeProps) {
 type EntityListProps = {
   data: MetricEntity[];
   loading?: boolean;
+  error?: string | null;
+  emptyMessage?: string;
 };
 
-function MfyList({ data, loading }: EntityListProps) {
+function MfyList({ data, loading, error, emptyMessage }: EntityListProps) {
   return (
     <ListSection title="MFYlar">
       {loading ? (
         <SkeletonList rows={3} />
-      ) : (
+      ) : error ? (
+        <ErrorNotice message={error} />
+      ) : data.length ? (
         data.map((entity, index) => (
-          <EntityCard key={entity.name} entity={entity} accent="pink" delay={index * 0.04} />
+          <EntityCard key={`${entity.name}-${index}`} entity={entity} accent="pink" delay={index * 0.04} />
         ))
+      ) : (
+        <EmptyStateNotice message={emptyMessage ?? "MFY ma’lumotlari topilmadi."} />
       )}
     </ListSection>
   );
 }
 
-function SchoolList({ data, loading }: EntityListProps) {
+function SchoolList({ data, loading, error, emptyMessage }: EntityListProps) {
   return (
     <ListSection title="Maktablar">
       {loading ? (
         <SkeletonList rows={3} />
-      ) : (
+      ) : error ? (
+        <ErrorNotice message={error} />
+      ) : data.length ? (
         data.map((entity, index) => (
-          <EntityCard key={entity.name} entity={entity} accent="blue" delay={index * 0.04} />
+          <EntityCard key={`${entity.name}-${index}`} entity={entity} accent="blue" delay={index * 0.04} />
         ))
+      ) : (
+        <EmptyStateNotice message={emptyMessage ?? "Maktab ma’lumotlari topilmadi."} />
       )}
     </ListSection>
   );
@@ -737,20 +871,43 @@ function SkeletonList({ rows = 3 }: SkeletonListProps) {
   );
 }
 
+type NoticeProps = {
+  message: string;
+};
+
+function ErrorNotice({ message }: NoticeProps) {
+  return (
+    <p className="rounded-3xl bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-600">
+      {message}
+    </p>
+  );
+}
+
+function EmptyStateNotice({ message }: NoticeProps) {
+  return (
+    <p className="rounded-3xl border border-dashed border-slate-200/80 bg-white/60 px-4 py-5 text-center text-sm font-semibold text-slate-500">
+      {message}
+    </p>
+  );
+}
+
 type NestedPanelProps = {
   district: MetricEntity | null;
   onClose: () => void;
+  data: VillageSchoolMetrics | null;
+  loading: boolean;
+  error: string | null;
 };
 
-function NestedPanel({ district, onClose }: NestedPanelProps) {
+function NestedPanel({ district, onClose, data, loading, error }: NestedPanelProps) {
   const [activeTab, setActiveTab] = useState<NestedTab>("mfy");
-  const [loading, setLoading] = useState(false);
+  const [tabTransitionLoading, setTabTransitionLoading] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!district) {
       setActiveTab("mfy");
-      setLoading(false);
+      setTabTransitionLoading(false);
     }
   }, [district]);
 
@@ -762,16 +919,12 @@ function NestedPanel({ district, onClose }: NestedPanelProps) {
     };
   }, []);
 
-  const nestedData = district
-    ? districtNestedDetails[district.name] ?? defaultNested
-    : defaultNested;
-
   const handleChange = (tab: NestedTab) => {
     if (tab === activeTab) return;
-    setLoading(true);
+    setTabTransitionLoading(true);
     setActiveTab(tab);
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setLoading(false), 320);
+    timerRef.current = setTimeout(() => setTabTransitionLoading(false), 320);
   };
 
   return (
@@ -813,9 +966,27 @@ function NestedPanel({ district, onClose }: NestedPanelProps) {
                     transition={{ duration: 0.3, ease: "easeOut" }}
                   >
                     {activeTab === "mfy" ? (
-                      <MfyList data={nestedData.mfys} loading={loading} />
+                      <MfyList
+                        data={data?.mfys ?? []}
+                        loading={loading || tabTransitionLoading}
+                        error={error}
+                        emptyMessage={
+                          district
+                            ? "MFY ma’lumotlari topilmadi."
+                            : "Tuman tanlanmagan."
+                        }
+                      />
                     ) : (
-                      <SchoolList data={nestedData.schools} loading={loading} />
+                      <SchoolList
+                        data={data?.schools ?? []}
+                        loading={loading || tabTransitionLoading}
+                        error={error}
+                        emptyMessage={
+                          district
+                            ? "Maktab ma’lumotlari topilmadi."
+                            : "Tuman tanlanmagan."
+                        }
+                      />
                     )}
                   </motion.div>
                 </AnimatePresence>

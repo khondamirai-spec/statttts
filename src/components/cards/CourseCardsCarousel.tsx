@@ -67,11 +67,18 @@ function enrichCourse(course: CourseRow): EnrichedCourse {
 }
 
 export default function CourseCardsCarousel() {
-  const [{ start, end }, setRange] = useState(initialRange);
+  const [{ start, end }, setRange] = useState<{
+    start: Date | null;
+    end: Date | null;
+  }>(() => ({ start: null, end: null }));
   const [courses, setCourses] = useState<EnrichedCourse[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(1);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setRange(initialRange());
+  }, []);
 
   useEffect(() => {
     const updateCardsPerView = () => {
@@ -93,6 +100,7 @@ export default function CourseCardsCarousel() {
   }, []);
 
   useEffect(() => {
+    if (!start || !end) return;
     let active = true;
     const frame = requestAnimationFrame(() => setLoading(true));
     async function fetchCourses() {
@@ -131,8 +139,8 @@ export default function CourseCardsCarousel() {
           </p>
         </div>
         <DateRangePicker
-          startDate={start}
-          endDate={end}
+          startDate={start ?? undefined}
+          endDate={end ?? undefined}
           onStartDateChange={(date) =>
             date && setRange(({ end }) => ({ start: date, end }))
           }
