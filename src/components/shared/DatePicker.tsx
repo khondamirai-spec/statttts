@@ -66,7 +66,7 @@ const DatePicker = forwardRef<DatePickerHandle, DatePickerProps>(
     );
     const triggerRef = useRef<HTMLButtonElement>(null);
     const popoverRef = useRef<HTMLDivElement>(null);
-    const monthSyncRef = useRef<number>();
+    const monthSyncRef = useRef<number | null>(null);
 
     useImperativeHandle(
       ref,
@@ -83,9 +83,9 @@ const DatePicker = forwardRef<DatePickerHandle, DatePickerProps>(
         setMonth(startOfMonth(value));
       });
       return () => {
-        if (monthSyncRef.current) {
+        if (monthSyncRef.current !== null) {
           cancelAnimationFrame(monthSyncRef.current);
-          monthSyncRef.current = undefined;
+          monthSyncRef.current = null;
         }
       };
     }, [value]);

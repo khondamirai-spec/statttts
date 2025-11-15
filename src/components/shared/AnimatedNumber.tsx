@@ -23,8 +23,8 @@ export default function AnimatedNumber({
   className,
 }: AnimatedNumberProps) {
   const [displayValue, setDisplayValue] = useState(value);
-  const frame = useRef<number>();
-  const start = useRef<number>();
+  const frame = useRef<number | null>(null);
+  const start = useRef<number | null>(null);
   const initialValue = useRef(value);
   const prefersReducedMotion = useMemo(() => {
     if (typeof window === "undefined") return false;
@@ -36,9 +36,9 @@ export default function AnimatedNumber({
     const diff = value - startValue;
 
     function cleanup() {
-      if (frame.current) {
+      if (frame.current !== null) {
         cancelAnimationFrame(frame.current);
-        frame.current = undefined;
+        frame.current = null;
       }
     }
 
@@ -51,7 +51,7 @@ export default function AnimatedNumber({
     }
 
     function step(timestamp: number) {
-      if (!start.current) start.current = timestamp;
+      if (start.current === null) start.current = timestamp;
       const progress = Math.min((timestamp - start.current) / duration, 1);
       const eased = easeOutCubic(progress);
       setDisplayValue(startValue + diff * eased);
@@ -59,7 +59,7 @@ export default function AnimatedNumber({
         frame.current = requestAnimationFrame(step);
       } else {
         initialValue.current = value;
-        start.current = undefined;
+        start.current = null;
         cleanup();
       }
     }
