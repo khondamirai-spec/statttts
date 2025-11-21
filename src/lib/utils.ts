@@ -53,6 +53,20 @@ export function toUTCDate(dateString: string) {
   return new Date(`${dateString}T00:00:00Z`);
 }
 
+const DEFAULT_START_DATE_ISO = "2024-11-30T00:00:00Z";
+
+export function getDefaultDateRange() {
+  const end = new Date();
+  const start = new Date(DEFAULT_START_DATE_ISO);
+
+  if (start.getTime() > end.getTime()) {
+    const fallbackStart = new Date(end);
+    return { start: fallbackStart, end };
+  }
+
+  return { start, end };
+}
+
 export function toNumber(value: unknown, fallback = 0) {
   const num = Number(value);
   if (Number.isNaN(num)) return fallback;

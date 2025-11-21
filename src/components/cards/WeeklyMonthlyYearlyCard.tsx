@@ -5,7 +5,12 @@ import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import DateRangePicker from "@/components/shared/DateRangePicker";
 import GlassPanel from "@/components/ui/GlassPanel";
 import { useDailyUsers, type DailyUserPoint } from "@/hooks/useDailyUsers";
-import { formatDateISO, formatNumber, toUTCDate } from "@/lib/utils";
+import {
+  formatDateISO,
+  formatNumber,
+  toUTCDate,
+  getDefaultDateRange,
+} from "@/lib/utils";
 
 const WIDTH = 720;
 const HEIGHT = 220;
@@ -36,13 +41,6 @@ const TOOLTIP_FORMATTER = new Intl.DateTimeFormat("uz-UZ", {
   month: "short",
   timeZone: "UTC",
 });
-
-function initialRange() {
-  const end = new Date();
-  const start = new Date();
-  start.setDate(end.getDate() - 13);
-  return { start, end };
-}
 
 function createCurve(points: { x: number; y: number }[]) {
   if (!points.length) return "";
@@ -140,7 +138,8 @@ export default function WeeklyMonthlyYearlyCard() {
   });
 
   useEffect(() => {
-    setRange(initialRange());
+    const { start, end } = getDefaultDateRange();
+    setRange({ start, end });
   }, []);
 
   useLayoutEffect(() => {
@@ -320,14 +319,14 @@ export default function WeeklyMonthlyYearlyCard() {
 
       <div className="activity-card__summary">
         <div className="summary-tile summary-tile--primary">
-          <p className="summary-tile__label">Total New Users</p>
+          <p className="summary-tile__label">Yangi foydalanuvchilar jami</p>
           <AnimatedNumber
             value={total}
             className="summary-tile__value summary-tile__value--xl"
           />
         </div>
         <div className="summary-tile">
-          <p className="summary-tile__label">Peak Day</p>
+          <p className="summary-tile__label">Eng faol kun</p>
           <p className="summary-tile__value">{formatNumber(peakDay)}</p>
         </div>
       </div>

@@ -6,7 +6,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import DateRangePicker from "@/components/shared/DateRangePicker";
 import GlassPanel from "@/components/ui/GlassPanel";
 import { getCourses, type CourseRow } from "@/lib/api";
-import { formatDateISO, formatNumber } from "@/lib/utils";
+import {
+  formatDateISO,
+  formatNumber,
+  getDefaultDateRange,
+} from "@/lib/utils";
 
 type EnrichedCourse = CourseRow & {
   cover: string;
@@ -58,13 +62,6 @@ type DateRange = {
   end: Date;
 };
 
-function initialRange(): DateRange {
-  const end = new Date();
-  const start = new Date();
-  start.setDate(end.getDate() - 29);
-  return { start, end };
-}
-
 function enrichCourse(course: CourseRow): EnrichedCourse {
   return {
     ...course,
@@ -77,14 +74,16 @@ function enrichCourse(course: CourseRow): EnrichedCourse {
 }
 
 export default function CourseCardsCarousel() {
-  const [{ start, end }, setRange] = useState<DateRange>(() => initialRange());
+  const [{ start, end }, setRange] = useState<DateRange>(() =>
+    getDefaultDateRange(),
+  );
   const [courses, setCourses] = useState<EnrichedCourse[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(1);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setRange(initialRange());
+    setRange(getDefaultDateRange());
   }, []);
 
   useEffect(() => {

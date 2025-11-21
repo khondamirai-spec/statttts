@@ -20,7 +20,7 @@ import {
   type RegionStat,
   type RegionTotals,
 } from "@/hooks/useRegionStats";
-import { formatNumber } from "@/lib/utils";
+import { formatNumber, getDefaultDateRange } from "@/lib/utils";
 
 const accents: RegionAccent[] = ["purple", "orange", "blue", "green"];
 
@@ -240,13 +240,6 @@ function DateRangePlaceholder() {
   );
 }
 
-function initialRange() {
-  const end = new Date();
-  const start = new Date();
-  start.setDate(end.getDate() - 29);
-  return { start, end };
-}
-
 export default function RegionSummaryCard() {
   const [{ start, end }, setRange] = useState<{
     start: Date | null;
@@ -257,7 +250,8 @@ export default function RegionSummaryCard() {
     useCountryStats();
 
   useEffect(() => {
-    setRange(initialRange());
+    const { start, end } = getDefaultDateRange();
+    setRange({ start, end });
   }, []);
 
   const statsOptions = useMemo(() => {

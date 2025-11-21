@@ -12,7 +12,7 @@ export type DailyViewPoint = {
   longLabel: string;
 };
 
-const weekdayFormatter = new Intl.DateTimeFormat("en-US", {
+const weekdayFormatter = new Intl.DateTimeFormat("uz-UZ", {
   weekday: "short",
   timeZone: "UTC",
 });
