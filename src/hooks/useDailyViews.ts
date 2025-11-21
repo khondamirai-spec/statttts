@@ -2,7 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { getDailyViews, type SeriesRow } from "@/lib/api";
-import { formatDateISO, toUTCDate } from "@/lib/utils";
+import {
+  formatDateISO,
+  toUTCDate,
+  formatUzbekWeekday,
+  formatUzbekMonth,
+  formatUzbekDate,
+} from "@/lib/utils";
 
 export type DailyViewPoint = {
   day: string;
@@ -11,22 +17,6 @@ export type DailyViewPoint = {
   shortLabel: string;
   longLabel: string;
 };
-
-const weekdayFormatter = new Intl.DateTimeFormat("uz-UZ", {
-  weekday: "short",
-  timeZone: "UTC",
-});
-const shortRangeFormatter = new Intl.DateTimeFormat("uz-UZ", {
-  month: "short",
-  day: "2-digit",
-  timeZone: "UTC",
-});
-const longRangeFormatter = new Intl.DateTimeFormat("uz-UZ", {
-  weekday: "short",
-  month: "short",
-  day: "2-digit",
-  timeZone: "UTC",
-});
 
 const fallbackSeries: SeriesRow[] = [
   { date: "2025-11-08", count: 780 },
@@ -65,12 +55,15 @@ function dedupeAndSort(rows: SeriesRow[]) {
 function formatChartRows(rows: SeriesRow[]): DailyViewPoint[] {
   return rows.slice(-7).map((row) => {
     const date = toUTCDate(row.date);
+    const dayName = formatUzbekWeekday(date, true);
+    const dayNum = date.getUTCDate();
+    const monthName = formatUzbekMonth(date, true);
     return {
-      day: weekdayFormatter.format(date).toUpperCase(),
-      date: date.getUTCDate(),
+      day: dayName,
+      date: dayNum,
       value: row.count,
-      shortLabel: shortRangeFormatter.format(date),
-      longLabel: longRangeFormatter.format(date),
+      shortLabel: `${dayNum} ${monthName}`,
+      longLabel: `${dayName} ${dayNum} ${monthName}`,
     };
   });
 }

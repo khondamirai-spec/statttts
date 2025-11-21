@@ -10,6 +10,7 @@ import {
   formatNumber,
   toUTCDate,
   getDefaultDateRange,
+  formatUzbekDate,
 } from "@/lib/utils";
 
 const WIDTH = 720;
@@ -19,28 +20,6 @@ const MIN_CHART_HEIGHT = 240;
 const HEIGHT_RATIO = 0.45;
 const SMALL_SCREEN_BREAKPOINT = 480;
 const MEDIUM_SCREEN_BREAKPOINT = 780;
-const DATE_RANGE_FORMATTER = new Intl.DateTimeFormat("uz-UZ", {
-  day: "2-digit",
-  month: "short",
-  timeZone: "UTC",
-});
-const PEAK_DAY_FORMATTER = new Intl.DateTimeFormat("uz-UZ", {
-  weekday: "short",
-  day: "2-digit",
-  month: "short",
-  timeZone: "UTC",
-});
-const AXIS_TICK_FORMATTER = new Intl.DateTimeFormat("uz-UZ", {
-  day: "2-digit",
-  month: "short",
-  timeZone: "UTC",
-});
-const TOOLTIP_FORMATTER = new Intl.DateTimeFormat("uz-UZ", {
-  weekday: "short",
-  day: "2-digit",
-  month: "short",
-  timeZone: "UTC",
-});
 
 function createCurve(points: { x: number; y: number }[]) {
   if (!points.length) return "";
@@ -105,7 +84,7 @@ function summarizeRange(
     ) + 1;
 
   return {
-    label: `${DATE_RANGE_FORMATTER.format(rangeStart)} — ${DATE_RANGE_FORMATTER.format(rangeEnd)}`,
+    label: `${formatUzbekDate(rangeStart)} — ${formatUzbekDate(rangeEnd)}`,
     helper: `${diffDays} kunlik kesim`,
   };
 }
@@ -235,7 +214,7 @@ export default function WeeklyMonthlyYearlyCard() {
         if (!point || !coords) return null;
         return {
           x: coords.x,
-          label: AXIS_TICK_FORMATTER.format(toUTCDate(point.date)),
+          label: formatUzbekDate(toUTCDate(point.date), false),
           date: point.date,
         };
       })
@@ -456,7 +435,7 @@ export default function WeeklyMonthlyYearlyCard() {
               }}
             >
               <p className="text-xs font-medium text-slate-500">
-                {TOOLTIP_FORMATTER.format(toUTCDate(activePoint.raw.date))}
+                {formatUzbekDate(toUTCDate(activePoint.raw.date), true)}
               </p>
               <p className="text-lg font-semibold text-slate-800">
                 {formatNumber(activePoint.raw.count)}

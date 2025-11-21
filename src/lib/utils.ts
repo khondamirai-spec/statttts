@@ -72,3 +72,72 @@ export function toNumber(value: unknown, fallback = 0) {
   if (Number.isNaN(num)) return fallback;
   return num;
 }
+
+// Uzbek weekday and month translations
+const UZBEK_WEEKDAYS_SHORT = ["Ya", "Du", "Se", "Ch", "Pa", "Ju", "Sh"]; // Sunday = 0
+const UZBEK_WEEKDAYS_FULL = [
+  "Yakshanba",
+  "Dushanba",
+  "Seshanba",
+  "Chorshanba",
+  "Payshanba",
+  "Juma",
+  "Shanba",
+];
+
+const UZBEK_MONTHS_SHORT = [
+  "Yan",
+  "Fev",
+  "Mar",
+  "Apr",
+  "May",
+  "Iyun",
+  "Iyul",
+  "Avg",
+  "Sen",
+  "Okt",
+  "Noy",
+  "Dek",
+];
+
+const UZBEK_MONTHS_FULL = [
+  "Yanvar",
+  "Fevral",
+  "Mart",
+  "Aprel",
+  "May",
+  "Iyun",
+  "Iyul",
+  "Avgust",
+  "Sentabr",
+  "Oktabr",
+  "Noyabr",
+  "Dekabr",
+];
+
+export function formatUzbekWeekday(date: Date | null, short = true): string {
+  if (!date || !(date instanceof Date) || isNaN(date.getTime())) return "";
+  const dayIndex = date.getUTCDay();
+  return short
+    ? UZBEK_WEEKDAYS_SHORT[dayIndex] || ""
+    : UZBEK_WEEKDAYS_FULL[dayIndex] || "";
+}
+
+export function formatUzbekMonth(date: Date | null, short = true): string {
+  if (!date || !(date instanceof Date) || isNaN(date.getTime())) return "";
+  const monthIndex = date.getUTCMonth();
+  return short
+    ? UZBEK_MONTHS_SHORT[monthIndex] || ""
+    : UZBEK_MONTHS_FULL[monthIndex] || "";
+}
+
+export function formatUzbekDate(date: Date | null, includeWeekday = false): string {
+  if (!date || !(date instanceof Date) || isNaN(date.getTime())) return "";
+  const day = date.getUTCDate().toString().padStart(2, "0");
+  const month = formatUzbekMonth(date, true);
+  if (includeWeekday) {
+    const weekday = formatUzbekWeekday(date, true);
+    return `${weekday} ${day} ${month}`;
+  }
+  return `${day} ${month}`;
+}

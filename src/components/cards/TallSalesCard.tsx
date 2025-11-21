@@ -83,7 +83,7 @@ export default function TallSalesCard() {
         <div>
           <p className="tall-card__total-label">Eng faol kun</p>
           <p className="tall-card__total-value">
-            {peakPoint ? `${peakPoint.day} ${peakPoint.date}` : "Aniqlanmagan"}
+            {peakPoint ? peakPoint.longLabel : "Aniqlanmagan"}
           </p>
           <p className="tall-card__total-subvalue">
             {peakPoint
